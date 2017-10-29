@@ -1,0 +1,80 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 29.10.2017, 21:49:57
+    Author     : Rinat
+*/
+
+.question-block {
+    margin-bottom: 10px;
+    display: inline-block;
+    width: 100%;
+    position: relative;
+    padding: 0 0px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    animation: done .5s;
+    box-shadow: inset 0px 0px 40px #8a8ec5;
+}
+
+.variants-block {
+    padding: 0px 10px 10px;
+}
+.variants-block input {
+    margin-bottom: 5px;
+}
+.input-block {
+    padding: 10px;
+}
+.question-move-up, .question-move-down {
+    padding: 10px;
+    position: relative;
+    /*display: inline-block;*/
+    float: left;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: rgba(255,255,255,0.8);
+
+}
+.question-move-up {
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ddd;
+}
+.question-move-down {
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.question-move-up:hover, .question-move-down:hover {
+    background-color: rgba(33,44,77,0.3);
+}
+.question-move-up:before, .question-move-down:before {
+    position: absolute;
+    left: 40%;
+    right: 40%;
+    text-align: center;
+}
+.question-move-up:before {
+    content: '\25b2\25b2\25b2';
+    top: 0;
+}
+.question-move-down:before {
+    content: '\25bc\25bc\25bc';
+    bottom: 0;
+}
+@keyframes done {
+    0% {
+        opacity: 0;
+        background-color: rgba(255, 255, 255, .6);
+        transform: scale(1.1);
+    }
+    50% {
+        opacity: 1;
+        background-color: rgba(182, 224, 184, .8);
+    }
+}

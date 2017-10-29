@@ -1,0 +1,16 @@
+{
+  "name": "questionary",
+  "version": "1.0.0",
+  "keywords": [
+    "util",
+    "functional",
+    "server",
+    "client",
+    "browser"
+  ],
+  "author": "Rinat",
+  "contributors": [],
+  "dependencies": {
+    "bootstrap": "^3.3.7"
+  }
+}
