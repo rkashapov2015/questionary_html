@@ -3,6 +3,7 @@ const addQuestion = document.getElementById('addQuestion');
 const typeQuestion = document.getElementById('typeQuestion');
 const questionsBlock = document.getElementById('questions');
 const saveQuestionary = document.getElementById('saveQuestionary');
+const buttonCompactAll = document.querySelector('.button-compact-all');
 
 let importData = '';
 
@@ -56,6 +57,9 @@ function clickFunc(event) {
   }
   if (event.target === saveQuestionary) {
     saveQuestionaryFunc();
+  }
+  if (event.target === buttonCompactAll) {
+
   }
 
 }
@@ -327,4 +331,8 @@ function readTextFile(file) {
     }
   };
   rawFile.send(null);
+}
+
+function compactAll() {
+  
 }
