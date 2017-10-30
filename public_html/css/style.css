@@ -3,7 +3,7 @@ To change this license header, choose License Headers in Project Properties.
 To change this template file, choose Tools | Templates
 and open the template in the editor.
 */
-/* 
+/*
     Created on : 29.10.2017, 21:49:57
     Author     : Rinat
 */
@@ -20,7 +20,9 @@ and open the template in the editor.
     animation: done .5s;
     box-shadow: inset 0px 0px 40px #8a8ec5;
 }
-
+.question-block.compact .input-block, .question-block.compact .variants-block{
+    display: none;
+}
 .variants-block {
     padding: 0px 10px 10px;
 }
