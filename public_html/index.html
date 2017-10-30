@@ -11,39 +11,48 @@
     <body>
         <div class="container">
             <div class="col-xs-12">
-              <button class="btn btn-primary btn-sm button-compact-all">Сжать</button>
-            </div>
-            <div class="col-xs-12">
-              <div class="row">
-                <h3>Вопросы</h3>
-              </div>
-            </div>
-            <form>
-              <div class="col-xs-12">
-                <div id="questions" class="row">
-                    <p>Добавьте вопрос</p>
-                </div>
-              </div>
-              <div class="col-xs-12">
                 <div class="row">
-                  <button id="saveQuestionary" class="btn btn-success">Сохранить</button>
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button class="btn btn-primary btn-sm button-compact-all">Сжать</button>
+                        <button class="btn btn-warning btn-sm button-hide-all">Скрыть</button>
+                    </div>
                 </div>
-              </div>
-            </form>
-        </div>
-
-        <div class="container">
-            <hr />
-            <div class="input-group">
-                <select id="typeQuestion" class="form-control"></select>
-                <span class="input-group-btn">
-                    <button id="addQuestion" class="btn btn-success">Добавить</button>
-                </span>
+            </div>
+            <div class="questions-constructor">
+                <div class="col-xs-12">
+                    <div class="row">
+                        <h3>Вопросы</h3>
+                    </div>
+                </div>
+                <form>
+                    <div class="col-xs-12">
+                        <div id="questions" class="row">
+                            <p>Добавьте вопрос</p>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="row">
+                            <button id="saveQuestionary" class="btn btn-success">Сохранить</button>
+                            <hr />
+                        </div>
+                    </div>
+                </form>
+                <hr />
+                <div class="input-group">
+                    <select id="typeQuestion" class="form-control"></select>
+                    <span class="input-group-btn">
+                        <button id="addQuestion" class="btn btn-success">Добавить</button>
+                    </span>
+                </div>
             </div>
         </div>
-	<div class="container">
-
-	</div>
+        <div class="container">
+            <div class="col-xs-12">
+                <div class="row questionary-template">
+                    
+                </div>
+            </div>
+        </div>
         <script src="js/script.js"></script>
     </body>
 </html>

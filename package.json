@@ -1,16 +1,20 @@
 {
-  "name": "questionary",
-  "version": "1.0.0",
-  "keywords": [
-    "util",
-    "functional",
-    "server",
-    "client",
-    "browser"
-  ],
-  "author": "Rinat",
-  "contributors": [],
-  "dependencies": {
-    "bootstrap": "^3.3.7"
-  }
+    "name": "questionary", 
+    "version": "1.0.0", 
+    "keywords": [
+        "util", "functional", "server", "client", "browser"
+    ], 
+    "author": "Rinat", 
+    "contributors": [], 
+    "dependencies": {
+        "bootstrap": "^3.3.7"
+    }, 
+    "scripts": {
+        "serve": "lite-server -c=config.json",
+        "serve:upgrade": "http-server"
+    }, 
+    "devDependencies": {
+        "http-server": "^0.10.0",
+        "lite-server": "^2.2.2"
+    }
 }
