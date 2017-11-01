@@ -1,31 +1,48 @@
 'use strict';
-const addQuestion = document.getElementById('addQuestion');
-const typeQuestion = document.getElementById('typeQuestion');
-const questionsBlock = document.getElementById('questions');
-const saveQuestionary = document.getElementById('saveQuestionary');
-const buttonCompactAll = document.querySelector('.button-compact-all');
-const buttonHideAll = document.querySelector('.button-hide-all');
+let addQuestion = null;
+let typeQuestion = null;
+let questionsBlock = null;
+let saveQuestionary = null;
+let buttonCompactAll = null;
+let buttonHideAll = null;
+const questionsConstructor = document.querySelector('.questions-constructor');
 const questionaryTemplate = document.querySelector('.questionary-template');
-
+const controlButtons = document.getElementById('controlButtons');
 let importData = '';
 let arrayData = [];
 let numberQuestion = 1;
-
+let templateId = null;
 const types = {
   'one': 'Одинарный выбор',
   'multi': 'Множественный выбор',
   'text': 'Текст',
   'description': 'Описание'
 };
+const urlView = '/ws/template/view';
+const urlCreate = '/ws/template/create';
+const urlUpdate = '/ws/template/update';
+const urlSave = '/ws/template/save';
 
 init();
-
 function createEl(type, className) {
   const element = document.createElement(type);
   if (className) {
     element.className = className;
   }
   return element;
+}
+
+function getParameterByName(name, url) {
+  if (!url)
+    url = window.location.href;
+  name = name.replace(/[\[\]]/g, "\\$&");
+  var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+	  results = regex.exec(url);
+  if (!results)
+    return null;
+  if (!results[2])
+    return '';
+  return decodeURIComponent(results[2].replace(/\+/g, " "));
 }
 
 function createInput(name, className, type) {
@@ -38,7 +55,7 @@ function createInput(name, className, type) {
 }
 
 function clickFunc(event) {
-  //event.preventDefault();
+//event.preventDefault();
   if (event.target === addQuestion) {
     addQuestionFunc();
   }
@@ -67,7 +84,6 @@ function clickFunc(event) {
   if (event.target === saveQuestionary) {
     event.preventDefault();
     saveQuestionaryFunc();
-    
   }
   if (event.target === buttonCompactAll) {
     compactAllQuestions();
@@ -79,9 +95,7 @@ function clickFunc(event) {
 }
 function addQuestionFunc() {
   const type = typeQuestion.value;
-
   const newQuestion = createQuestion(numberQuestion, type);
-
   if (numberQuestion === 1) {
     clearNode(questionsBlock);
   }
@@ -97,7 +111,6 @@ function createQuestion(id, type, text) {
   let divWrapper = createEl('div', 'question-block');
   divWrapper.dataset.type = type;
   divWrapper.dataset.id = id;
-
   const divUp = createEl('div', 'question-move-up');
   divWrapper.appendChild(divUp);
   const divHelper = createEl('div', 'col-xs-12 question-helper');
@@ -120,13 +133,11 @@ function createQuestion(id, type, text) {
   const buttonDelete = createEl('button', 'btn btn-danger delete-question');
   buttonDelete.innerText = 'Удалить';
   span.appendChild(buttonDelete);
-
   divInput.appendChild(inputNameQuestion);
   divInput.appendChild(span);
   divWrapper.appendChild(divInput);
   if (type !== 'text' && type !== 'description') {
     const variantsBlock = createEl('div', 'variants-block col-xs-11 col-xs-offset-1 col-md-8 col-md-offset-4');
-
     const buttonAddVariant = createEl('button', 'btn btn-sm btn-success add-variant');
     buttonAddVariant.innerText = '+';
     variantsBlock.appendChild(buttonAddVariant);
@@ -183,12 +194,111 @@ function clearNode(node) {
     node.removeChild(node.firstChild);
   }
 }
+
 function init() {
-  fillVariantsType();
+  if (window.location.pathname !== urlView) {
+    console.log(window.location.pathname);
+    drawControlButtons();
+    drawConstructorBlock();
+
+    addQuestion = document.getElementById('addQuestion');
+    typeQuestion = document.getElementById('typeQuestion');
+    questionsBlock = document.getElementById('questions');
+    saveQuestionary = document.getElementById('saveQuestionary');
+    buttonCompactAll = document.querySelector('.button-compact-all');
+    buttonHideAll = document.querySelector('.button-hide-all');
+
+    fillVariantsType();
+  }
   document.body.addEventListener('click', clickFunc);
-  readTextFile("data.txt");
+  let id = getParameterByName('id');
+  //console.log(id);
+  if (id) {
+    templateId = id;
+    sendData('/ws/template/get-template?id=' + id, '');
+  }
+//readTextFile("http://localhost:3000/data.txt");
 }
 
+function drawControlButtons() {
+//controlButtons.
+  /*<div class="btn-group" role="group">
+   <button class="btn btn-primary btn-sm button-compact-all">Сжать</button>
+   <button class="btn btn-warning btn-sm button-hide-all">Скрыть</button>
+   </div>*/
+  const btnGroup = createEl('div', 'btn-group');
+  const btnCompact = createEl('button', 'btn btn-primary btn-sm button-compact-all');
+  btnCompact.innerText = 'Сжать';
+  const btnHide = createEl('button', 'btn btn-warning btn-sm button-hide-all');
+  btnHide.innerText = 'Скрыть';
+  btnGroup.appendChild(btnCompact);
+  btnGroup.appendChild(btnHide);
+  controlButtons.appendChild(btnGroup);
+}
+function drawConstructorBlock() {
+//  <div class="col-xs-12">
+//	    <div class="row">
+//		<h3>Вопросы</h3>
+//	    </div>
+//  </div>
+//  <div class="col-xs-12">
+//      <div id="questions" class="row">
+//	  <p>Добавьте вопрос</p>
+//      </div>
+//  </div>
+//  <div class="col-xs-12">
+//      <div class="row">
+//	  <button id="saveQuestionary" class="btn btn-success">Сохранить</button>
+//	  <hr />
+//      </div>
+//  </div>
+//  <hr />
+//  <div class="input-group">
+//      <select id="typeQuestion" class="form-control"></select>
+//      <span class="input-group-btn">
+//	  <button id="addQuestion" class="btn btn-success">Добавить</button>
+//      </span>
+//  </div>
+  const divHead = createEl('div', 'col-xs-12');
+  const divRow = createEl('div', 'row');
+  const hText = createEl('h3', '');
+  hText.innerText = 'Вопросы';
+  divRow.appendChild(hText);
+  divHead.appendChild(divRow);
+  questionsConstructor.appendChild(divHead);
+  const divPlaceQuestions = createEl('div', 'col-xs-12');
+  const divQuestions = createEl('div', 'row');
+  divQuestions.setAttribute('id', 'questions');
+  const pWord = createEl('p', '');
+  pWord.innerText = 'Добавьте вопрос';
+  divQuestions.appendChild(pWord);
+  divPlaceQuestions.appendChild(divQuestions);
+  questionsConstructor.appendChild(divPlaceQuestions);
+
+  const divButtonBlock = createEl('div', 'col-xs-12');
+  const divButtonBlockRow = createEl('div', 'row');
+  const buttonSave = createEl('button', 'btn btn-success');
+  buttonSave.innerText = 'Сохранить';
+  buttonSave.setAttribute('id', 'saveQuestionary');
+  divButtonBlockRow.appendChild(buttonSave);
+  divButtonBlockRow.appendChild(createEl('hr', ''));
+  divButtonBlock.appendChild(divButtonBlockRow);
+  questionsConstructor.appendChild(divButtonBlock);
+
+  questionsConstructor.appendChild(createEl('hr', ''));
+
+  const divInputGroup = createEl('div', 'input-group');
+  const selectType = createEl('select', 'form-control');
+  selectType.setAttribute('id', 'typeQuestion');
+  divInputGroup.appendChild(selectType);
+  const spanInput = createEl('span', 'input-group-btn');
+  const buttonAddQ = createEl('button', 'btn btn-success');
+  buttonAddQ.setAttribute('id', 'addQuestion');
+  buttonAddQ.innerText = 'Добавить';
+  spanInput.appendChild(buttonAddQ);
+  divInputGroup.appendChild(spanInput);
+  questionsConstructor.appendChild(divInputGroup);
+}
 function fillVariantsType() {
 
   for (let index in types) {
@@ -211,7 +321,6 @@ function moveQuestion(node, up) {
   const upperChildren = node.previousSibling;
   const lowerChildren = node.nextSibling;
   const copyNode = node.cloneNode(true);
-
   if (!up) {
     if (!lowerChildren) {
       return false;
@@ -233,7 +342,6 @@ function moveQuestion(node, up) {
 function saveQuestionaryFunc() {
   arrayData = [];
   const inputs = questionsBlock.querySelectorAll('input');
-
   Array.from(inputs).forEach(function (value, index) {
     if (value.classList.contains('question-text')) {
       const parent = getParentByClassname(value, 'question-block');
@@ -256,6 +364,11 @@ function saveQuestionaryFunc() {
   });
   console.log(arrayData);
   console.log(JSON.stringify(arrayData));
+  let url = urlSave;
+  if (templateId) {
+    url = urlUpdate + '?id=' + templateId;
+  }
+  sendData(url, JSON.stringify(arrayData));
 }
 
 function getRowById(id) {
@@ -279,7 +392,6 @@ function compactQuestionBlock(elem) {
   }
   const inputValue = element.querySelector('.question-text').value;
   const buttonHide = element.querySelector('.button-hide');
-
   if (element.classList.contains('compact')) {
     element.classList.remove('compact');
     buttonHide.innerText = '-';
@@ -324,7 +436,6 @@ function drawQuestionary() {
 
 function createVariants(id, variants) {
   const fragment = document.createDocumentFragment();
-
   for (let variantText of variants) {
     fragment.appendChild(createVariant(id, variants.length, variantText));
   }
@@ -345,6 +456,48 @@ function readTextFile(file) {
   rawFile.send(null);
 }
 
+function sendData(url, data) {
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener('load', (e) => {
+    console.log(xhr.response);
+    readInstruction(xhr.response);
+  });
+  xhr.open("POST", url);
+  xhr.send(data);
+}
+
+function readInstruction(data) {
+//console.log(typeof data);
+  data = JSON.parse(data);
+  if (!data.hasOwnProperty('error')) {
+    console.log('no error attribute');
+    return false;
+  }
+
+  if (data.hasOwnProperty('message')) {
+    console.log(data.message);
+  }
+
+  if (data.hasOwnProperty('reload')) {
+    window.location.reload();
+  }
+
+  if (data.hasOwnProperty('url')) {
+    window.location.href = data.url;
+  }
+
+  if (data.hasOwnProperty('data')) {
+    importData = data.data;
+    if (window.location.pathname === '/ws/template/create' || window.location.pathname === '/ws/template/update') {
+      drawQuestionary();
+    }
+    if (window.location.pathname === '/ws/template/view') {
+      drawTemplate();
+    }
+  }
+
+}
+
 function compactAllQuestions() {
   const questions = questionsBlock.querySelectorAll('.question-block');
   Array.from(questions).forEach(function (value) {
@@ -362,68 +515,86 @@ function hideAllQuestions() {
   }
 }
 
-function drawTemplate() {
-  //questionaryTemplate
+function drawTemplate(count) {
+  const key = 'last_question';
+  const jsonArray = JSON.parse(importData);
+  arrayData = jsonArray;
   clearNode(questionaryTemplate);
-
-  for (let row of arrayData) {
-    const type = row.type;
-    let id = row.id;
-    const text = row.text;
-
-    console.log(id);
-    let name = 'q_' + id;
-    const divWrap = createEl('div', 'form-group');
-    
-    if (type === 'one' || type === 'multi') {
-      const p = createEl('p', '');
-      p.innerText = text;
-      divWrap.appendChild(p);
-      if (!row.hasOwnProperty('variants')) {
-	return false;
-      }
-      const variants = row.variants;
-      
-      let typeInput = 'radio';
-      let classInput = 'radio';
-      if (type === 'multi') {
-	typeInput = 'checkbox';
-	classInput = 'checkbox';
-	name = 'q_' + id + '[]';
-      }
-      const selectBlock = createEl('div', '');
-      for (let variant of variants) {
-	const divVar = createEl('div', classInput);
-	const label = createEl('label', '');
-	const inputVariant = createInput(name, '', typeInput);
-	inputVariant.value = variant;
-	label.appendChild(inputVariant);
-	const textNode = document.createTextNode(variant);
-	label.appendChild(textNode);
-	divVar.appendChild(label);
-	selectBlock.appendChild(divVar);
-      }
-      divWrap.appendChild(selectBlock);
-    } else if (type === 'text'){
-      const row = createEl('div', 'row');
-      const labelPart = createEl('div', 'col-xs-12 col-md-4');
-      
-      const p = createEl('p', '');
-      p.innerText = text;
-      labelPart.appendChild(p);
-      row.appendChild(labelPart);
-      
-      const fieldPart = createEl('div', 'col-xs-12 col-md-8');
-      const inputText = createInput(name, 'form-control');
-      fieldPart.appendChild(inputText);
-      
-      row.appendChild(fieldPart);
-      divWrap.appendChild(row);
-    } else {
-      const p = createEl('h4', '');
-      p.innerText = text;
-      divWrap.appendChild(p);
-    }
-    questionaryTemplate.appendChild(divWrap);
+  let last_question = localStorage.getItem(key);
+  if (last_question === arrayData.length) {
+    localStorage.removeItem(key);
   }
+  console.log('last_question: ' + last_question);
+  let iter = 0;
+  for (let row of arrayData) {
+    if (last_question && last_question > iter) {
+      iter++;
+      continue;
+    }
+    questionaryTemplate.appendChild(drawQuestion(row));
+    iter++;
+    if (count && count < iter) {
+      break;
+    }
+  }
+  console.log('arrayData.length: ' + arrayData.length);
+  if (arrayData.length === iter || arrayData.length === last_question) {
+    localStorage.removeItem(key);
+  } else {
+    localStorage.setItem(key, iter);
+  }
+}
+
+function drawQuestion(row) {
+  const type = row.type;
+  let id = row.id;
+  const text = row.text;
+  let name = 'q_' + id;
+  const divWrap = createEl('div', 'form-group');
+  if (type === 'one' || type === 'multi') {
+    const p = createEl('p', '');
+    p.innerText = text;
+    divWrap.appendChild(p);
+    if (!row.hasOwnProperty('variants')) {
+      return false;
+    }
+    const variants = row.variants;
+    let typeInput = 'radio';
+    let classInput = 'radio';
+    if (type === 'multi') {
+      typeInput = 'checkbox';
+      classInput = 'checkbox';
+      name = 'q_' + id + '[]';
+    }
+    const selectBlock = createEl('div', '');
+    for (let variant of variants) {
+      const divVar = createEl('div', classInput);
+      const label = createEl('label', '');
+      const inputVariant = createInput(name, '', typeInput);
+      inputVariant.value = variant;
+      label.appendChild(inputVariant);
+      const textNode = document.createTextNode(variant);
+      label.appendChild(textNode);
+      divVar.appendChild(label);
+      selectBlock.appendChild(divVar);
+    }
+    divWrap.appendChild(selectBlock);
+  } else if (type === 'text') {
+    const row = createEl('div', 'row');
+    const labelPart = createEl('div', 'col-xs-12 col-md-4');
+    const p = createEl('p', '');
+    p.innerText = text;
+    labelPart.appendChild(p);
+    row.appendChild(labelPart);
+    const fieldPart = createEl('div', 'col-xs-12 col-md-8');
+    const inputText = createInput(name, 'form-control');
+    fieldPart.appendChild(inputText);
+    row.appendChild(fieldPart);
+    divWrap.appendChild(row);
+  } else {
+    const p = createEl('h4', '');
+    p.innerText = text;
+    divWrap.appendChild(p);
+  }
+  return divWrap;
 }
