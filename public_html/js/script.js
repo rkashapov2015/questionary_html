@@ -196,6 +196,7 @@ function clearNode(node) {
 }
 
 function init() {
+  localStorage.removeItem('last_question');
   if (window.location.pathname !== urlView) {
     console.log(window.location.pathname);
     drawControlButtons();
@@ -217,7 +218,7 @@ function init() {
     templateId = id;
     sendData('/ws/template/get-template?id=' + id, '');
   }
-//readTextFile("http://localhost:3000/data.txt");
+  readTextFile("http://localhost:3000/data.txt");
 }
 
 function drawControlButtons() {
@@ -520,12 +521,13 @@ function drawTemplate(count) {
   const jsonArray = JSON.parse(importData);
   arrayData = jsonArray;
   clearNode(questionaryTemplate);
-  let last_question = localStorage.getItem(key);
+  let last_question = parseInt(localStorage.getItem(key));
   if (last_question === arrayData.length) {
     localStorage.removeItem(key);
   }
   console.log('last_question: ' + last_question);
   let iter = 0;
+  let countDrawed = 0;
   for (let row of arrayData) {
     if (last_question && last_question > iter) {
       iter++;
@@ -533,7 +535,9 @@ function drawTemplate(count) {
     }
     questionaryTemplate.appendChild(drawQuestion(row));
     iter++;
-    if (count && count < iter) {
+    countDrawed++;
+    if (count && count < countDrawed+1) {
+      localStorage.setItem(key, iter+1);
       break;
     }
   }
